@@ -7,6 +7,7 @@ use Net::Async::HTTP;
 use Future::AsyncAwait;
 use Gzip::Faster;
 use UUID qw(uuid4);
+use HTML::Entities qw(encode_entities);
 
 # Hell, rationality itself - the exalted Human ability to reason - hadn’t
 # evolved in the pursuit of truth but simply to win arguments, to gain control:
@@ -17,11 +18,12 @@ use constant FOUNTAIN_URL => 'https://RNSAFFN.com/poison2/';
 use constant PAGE_HTML => <<HTML =~ s{[\t\v]}{}gr;
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<title>GC code preview</title>
 	</head>
 	<body>
-		<code>%s</code>
-		<a href="%s">Next Page</a>
+		<pre><code>%s</code></pre>
+		<p><a href="%s">Next snippet</a></p>
 	</body>
 </html>
 HTML
@@ -82,7 +84,7 @@ async sub call
 		$poisoned = gunzip $poisoned;
 	}
 
-	my $html = sprintf PAGE_HTML, $poisoned, $self->generate_link;
+	my $html = sprintf PAGE_HTML, encode_entities($poisoned, '<>&"'), $self->generate_link;
 
 	await $send->(
 		{
