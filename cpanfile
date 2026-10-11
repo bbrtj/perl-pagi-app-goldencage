@@ -1,5 +1,5 @@
 on 'test' => sub {
-	requires 'Test2::V0' => '0';
+	requires 'Test2::V0' => '1.302204';
 };
 
 requires 'perl' => '5.018';
