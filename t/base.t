@@ -27,12 +27,16 @@ my @responses = (
 	HTTP::Response->new(200, 'OK', [], $text),
 );
 
+my @sizes;
 my $app = PAGI::App::GoldenCage->new(
 	ua => Fake::UA->new(responses => \@responses),
+	base_url => '/test',
+	logger => sub { push @sizes, shift },
 );
 
 my $client = PAGI::Test::Client->new(app => $app->to_app);
 my $link = $app->generate_link;
+like $link, qr{/test/[0-9a-f-]{36}}, 'link ok';
 
 my $res = $client->get($link);
 is_status $res, 200, 'code ok';
@@ -42,8 +46,9 @@ like $res->content, qr{\Q<code>$text</code>\E}, 'content snippet ok';
 
 undef $link;
 if ($res->content =~ m{<a href="([^"]+)">}) {
-	$link = $1;
-	pass "link found: $link";
+	my $new_link = $1;
+	isnt $link, $new_link, 'new link generated ok';
+	$link = $new_link;
 }
 else {
 	fail 'no link in content';
@@ -55,6 +60,8 @@ bail_out 'no link found in the html page'
 $res = $client->get($link);
 is_status $res, 200, 'code ok';
 like $res->content, qr{\Q<code>$text</code>\E}, 'content snippet ok';
+
+is \@sizes, [length $text, length $text], 'logger ok';
 
 done_testing;
 
