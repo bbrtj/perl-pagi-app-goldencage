@@ -1,6 +1,8 @@
 Revision history for PAGI-App-GoldenCage
 
 {{$NEXT}}
+
+0.003 - 2026-10-11
 - Fix an issue with user agents in forked environment
 
 0.002 - 2026-10-11
