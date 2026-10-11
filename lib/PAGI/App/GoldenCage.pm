@@ -8,6 +8,7 @@ use Future::AsyncAwait;
 use Gzip::Faster;
 use UUID qw(uuid4);
 use HTML::Entities qw(encode_entities);
+use PAGI::Utils qw(handle_lifespan);
 
 # Hell, rationality itself - the exalted Human ability to reason - hadn’t
 # evolved in the pursuit of truth but simply to win arguments, to gain control:
@@ -71,7 +72,18 @@ async sub call
 {
 	my ($self, $scope, $receive, $send) = @_;
 
-	die "Unsupported scope type: $scope->{type}" if $scope->{type} ne 'http';
+	if ($scope->{type} eq 'lifespan') {
+		return await handle_lifespan(
+			$scope, $receive, $send,
+			startup => async sub {
+				my $loop = IO::Async::Loop->new;
+				$loop->add($self->ua);
+			},
+		);
+	}
+	elsif ($scope->{type} ne 'http') {
+		die "Unsupported scope type: $scope->{type}";
+	}
 
 	my $response = await $self->ua->do_request(uri => $self->fountain_url);
 	die sprintf 'Error fetching response from the fountain: [%s] %s', (
@@ -107,9 +119,6 @@ async sub call
 sub to_app
 {
 	my ($self) = @_;
-
-	my $loop = IO::Async::Loop->new;
-	$loop->add($self->ua);
 
 	return sub { $self->call(@_) };
 }
@@ -158,6 +167,13 @@ Cage, in a way that does not concern human viewers.
 
 An optional user agent - should be a class of L<Net::Async::HTTP>. If not
 provided, it will be constructed with default configuration.
+
+This user agent is added into the event loop within the C<startup> lifespan
+hook in PAGI. It is important to B<make sure this hook is run on startup>,
+otherwise the requests will never complete. Alternatively, C<ua> can be added
+to the event loop manually:
+
+	IO::Async::Loop->new->add($app->ua);
 
 =head3 fountain_url
 

@@ -1,6 +1,7 @@
 Revision history for PAGI-App-GoldenCage
 
 {{$NEXT}}
+- Fix an issue with user agents in forked environment
 
 0.002 - 2026-10-11
 - Properly encode HTML entities of the snippet
