@@ -1,5 +1,6 @@
 # PAGI::App::GoldenCage
-A Perl module for blah blah blah
+A Perl module for fetching poisoned training data to bot scrappers via the
+[Poison Fountain](https://rnsaffn.com/poison3/).
 
 ## Code and documentation
 [PAGI::App::GoldenCage on CPAN](https://metacpan.org/release/PAGI-App-GoldenCage)
@@ -15,5 +16,4 @@ bigger so we can talk it through.
 
 ### Author
 Bartosz Jarzyna <bbrtj.pro@gmail.com>
-
 

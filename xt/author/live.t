@@ -2,8 +2,6 @@ use Test2::V0;
 use PAGI::App::GoldenCage;
 use PAGI::Test::Client;
 
-use utf8;
-
 ################################################################################
 # This live-tests with default poison fountain link
 ################################################################################
